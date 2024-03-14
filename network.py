@@ -12,14 +12,19 @@ class Network(object):
         self.weights = [np.random.randn(y, x) for x, y in zip(sizes[:-1], sizes[1:])]
 
         # Set the activation function and its derivative
-        if activation_function == 'sigmoid':
-            self.activation = sigmoid
-            self.activation_prime = sigmoid_prime
-        elif activation_function == 'tanh':
-            self.activation = np.tanh
-            self.activation_prime = lambda z: 1.0 - np.tanh(z)**2
-        else:
-            raise ValueError("Unsupported activation function: {}".format(activation_function))
+        match activation_function:
+            case 'sigmoid':
+                self.activation = sigmoid
+                self.activation_prime = sigmoid_prime
+            case 'hyperbolic tanget':
+                self.activation = hyperbolic_tangent
+                self.activation_prime = hyperbolic_tangent_prime
+                #self.activation_prime = lambda z: 1.0 - np.tanh(z)**2
+            case 'softplus':
+                self.activation = softplus
+                self.activation_prime = softplus_prime
+            case _:
+                raise ValueError("Unsupported activation function: {}".format(activation_function))
 
     def feedforward(self, a):
         for b, w in zip(self.biases, self.weights):
@@ -93,3 +98,15 @@ def sigmoid(z):
 
 def sigmoid_prime(z):
     return sigmoid(z) * (1 - sigmoid(z))
+
+def hyperbolic_tangent(z):
+    return np.tanh(z)
+
+def hyperbolic_tangent_prime(z):
+    return (1/np.cosh(z))*(1/np.cosh(z))
+
+def softplus(z):
+    return np.log(1+np.exp(z))
+
+def softplus_prime(z):
+    return np.exp(z)/(np.exp(z)*np.log(10)+np.log(10))
