@@ -5,7 +5,7 @@ import network
 
 class Network(object):
 
-    def __init__(self, sizes, activation_function='sigmoid'):
+    def __init__(self, sizes, activation_function='softplus'):
         self.num_layers = len(sizes)
         self.sizes = sizes
         self.biases = [np.random.randn(y, 1) for y in sizes[1:]]
@@ -14,6 +14,7 @@ class Network(object):
         # Set the activation function and its derivative
         match activation_function:
             case 'sigmoid':
+                print("softplus")
                 self.activation = sigmoid
                 self.activation_prime = sigmoid_prime
             case 'hyperbolic tanget':
@@ -103,10 +104,11 @@ def hyperbolic_tangent(z):
     return np.tanh(z)
 
 def hyperbolic_tangent_prime(z):
+    # better 1 - tanh(z)*tanh(z)
     return (1/np.cosh(z))*(1/np.cosh(z))
 
 def softplus(z):
     return np.log(1+np.exp(z))
 
 def softplus_prime(z):
-    return np.exp(z)/(np.exp(z)*np.log(10)+np.log(10))
+    return np.exp(z)/(1+np.exp(z))
