@@ -27,11 +27,6 @@ class Network(object):
             case _:
                 raise ValueError("Unsupported activation function: {}".format(activation_function))
 
-    def feedforward(self, a):
-        for b, w in zip(self.biases, self.weights):
-            a = self.activation(np.dot(w, a) + b)
-        return a
-
     def SGD(self, training_data, epochs, mini_batch_size, eta, test_data=None):
         training_data = list(training_data)
         n = len(training_data)
@@ -42,9 +37,7 @@ class Network(object):
 
         for j in range(epochs):
             random.shuffle(training_data)
-            mini_batches = [
-                training_data[k:k + mini_batch_size]
-                for k in range(0, n, mini_batch_size)]
+            mini_batches = [training_data[k:k + mini_batch_size]for k in range(0, n, mini_batch_size)]
             for mini_batch in mini_batches:
                 self.update_mini_batch(mini_batch, eta)
             if test_data:
@@ -53,16 +46,20 @@ class Network(object):
                 print("Epoch {} complete".format(j))
 
     def update_mini_batch(self, mini_batch, eta):
+        #zeros arrays out
         nabla_b = [np.zeros(b.shape) for b in self.biases]
         nabla_w = [np.zeros(w.shape) for w in self.weights]
+        #for weight x and bais y preform backprop 
         for x, y in mini_batch:
             delta_nabla_b, delta_nabla_w = self.backprop(x, y)
             nabla_b = [nb + dnb for nb, dnb in zip(nabla_b, delta_nabla_b)]
             nabla_w = [nw + dnw for nw, dnw in zip(nabla_w, delta_nabla_w)]
+        #gradient descent update weights and biases w' = w - l/m * gradient
         self.weights = [w - (eta / len(mini_batch)) * nw for w, nw in zip(self.weights, nabla_w)]
         self.biases = [b - (eta / len(mini_batch)) * nb for b, nb in zip(self.biases, nabla_b)]
 
     def backprop(self, x, y):
+        #zeros arrays out
         nabla_b = [np.zeros(b.shape) for b in self.biases]
         nabla_w = [np.zeros(w.shape) for w in self.weights]
         # feedforward
@@ -87,8 +84,14 @@ class Network(object):
         return (nabla_b, nabla_w)
 
     def evaluate(self, test_data):
+        #x is the input, y is the correct output
         test_results = [(np.argmax(self.feedforward(x)), y) for (x, y) in test_data]
         return sum(int(x == y) for (x, y) in test_results)
+    
+    def feedforward(self, a):
+        for b, w in zip(self.biases, self.weights):
+            a = self.activation(np.dot(w, a) + b)
+        return a
 
     def cost_derivative(self, output_activations, y):
         return (output_activations - y)
