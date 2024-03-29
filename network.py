@@ -5,7 +5,7 @@ import network
 
 class Network(object):
 
-    def __init__(self, sizes, activation_function='softplus'):
+    def __init__(self, sizes, activation_function='hyperbolic tanget'):
         self.num_layers = len(sizes)
         self.sizes = sizes
         self.biases = [np.random.randn(y, 1) for y in sizes[1:]]
@@ -84,9 +84,9 @@ class Network(object):
         return (nabla_b, nabla_w)
 
     def evaluate(self, test_data):
-        #x is the input, y is the correct output
-        test_results = [(np.argmax(self.feedforward(x)), y) for (x, y) in test_data]
-        return sum(int(x == y) for (x, y) in test_results)
+        #x is the 784 pixel values, y is the correct output 
+        test_results = [(np.argmax(self.feedforward(input)), correct_output) for (input, correct_output) in test_data]
+        return sum(int(output == correct_output) for (output, correct_output) in test_results)
     
     def feedforward(self, a):
         for b, w in zip(self.biases, self.weights):
@@ -104,11 +104,11 @@ def sigmoid_prime(z):
     return sigmoid(z) * (1 - sigmoid(z))
 
 def hyperbolic_tangent(z):
-    return np.tanh(z)
+    return .5*np.tanh(z)+.5
 
 def hyperbolic_tangent_prime(z):
     # better 1 - tanh(z)*tanh(z)
-    return (1/np.cosh(z))*(1/np.cosh(z))
+    return .5*(1 - np.tanh(z)*np.tanh(z))
 
 def softplus(z):
     return np.log(1+np.exp(z))
